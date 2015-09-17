@@ -186,7 +186,7 @@ class Cache
   def url_id(url)
     uri = URI.parse url
     uri.query = uri.query.gsub(/client_id=[^=]*&client_secret=[^=]*/, "")
-    uri.to_s
+    uri.path + "?" + uri.query
   end
 end
 
@@ -195,7 +195,19 @@ Typhoeus::Config.cache ||= Cache.new
 module UrlBuilder
   extend self
 
+  DOMAINS = [
+    "api.github.com",
+    "corpus-retrieval-slave1.herokuapp.com",
+    "corpus-retrieval-slave2.herokuapp.com",
+    "corpus-retrieval-slave3.herokuapp.com",
+    "corpus-retrieval-slave4.herokuapp.com",
+  ]
+
   def build(url, page=nil, sort=nil, order=nil)
+    uri = URI.parse(url)
+    domain = next_domain
+    query = uri.query && "?" + uri.query || ""
+    url = "https://" + domain + uri.path + query
     if url.include? "?"
       url = url + "&" + client_params
     else
@@ -218,6 +230,13 @@ module UrlBuilder
   end
 
 private
+
+  def next_domain
+    @domainindex ||= 0
+    domain = DOMAINS[@domainindex]
+    @domainindex = (@domainindex + 1) % DOMAINS.size
+    domain
+  end
 
   def client_params
     cparams = client_env_vars
