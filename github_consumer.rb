@@ -2,6 +2,7 @@ require "typhoeus"
 require "base64"
 require "zip"
 require "redis"
+require "json"
 
 module GithubConsumer
   extend self
