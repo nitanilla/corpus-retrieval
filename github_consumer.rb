@@ -162,7 +162,7 @@ end
 
 class Cache
   def initialize
-    @redis = Redis.new
+    @redis = Redis.new url: ENV["REDISTOGO_URL"]
   end
 
   def get(request)
