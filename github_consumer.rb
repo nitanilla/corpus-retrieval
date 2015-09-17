@@ -167,7 +167,7 @@ class Cache
   end
 
   def get(request)
-    response_body = @redis.get request.base_url
+    response_body = @redis.get url_id(request.base_url)
     if response_body
       Typhoeus::Response.new(return_code: :ok, code: 200, body: response_body)
     else
@@ -177,28 +177,26 @@ class Cache
 
   def set(request, response)
     two_hours = 2*60*60
-    @redis.setex request.base_url, two_hours, response.body
+    @redis.setex url_id(request.base_url), two_hours, response.body
   end
 
-  def tonewcache
-    new_cache = Cache.new
-    @memory.each do |request, response|
-      new_cache.set request, response
-    end
-    new_cache
+  def url_id(url)
+    uri = URI.parse url
+    uri.query = uri.query.gsub(/client_id=[^=]*&client_secret=[^=]*/, "")
+    uri.to_s
   end
 end
 
 Typhoeus::Config.cache ||= Cache.new
 
 module UrlBuilder
-  CLIENT_PARAMS = "client_id=#{ENV['CLIENT_ID']}&client_secret=#{ENV['CLIENT_SECRET']}"
+  extend self
 
-  def self.build(url, page=nil, sort=nil, order=nil)
+  def build(url, page=nil, sort=nil, order=nil)
     if url.include? "?"
-      url = url + "&" + CLIENT_PARAMS
+      url = url + "&" + client_params
     else
-      url = url + "?" + CLIENT_PARAMS
+      url = url + "?" + client_params
     end
 
     if sort
@@ -214,5 +212,24 @@ module UrlBuilder
     end
 
     return url
+  end
+
+private
+
+  def client_params
+    cparams = client_env_vars
+    "client_id=#{cparams[:client_id]}&client_secret=#{cparams[:client_secret]}"
+  end
+
+  def client_env_vars
+    @clientindex ||= 0
+
+    params = {
+      client_id: ENV['CLIENT_ID'].split(',')[@clientindex],
+      client_secret: ENV['CLIENT_SECRET'].split(',')[@clientindex],
+    }
+    @clientindex += 1
+    @clientindex = @clientindex % ENV['CLIENT_ID'].split(",").size
+    params
   end
 end
