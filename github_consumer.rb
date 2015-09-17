@@ -205,10 +205,10 @@ module UrlBuilder
 
   DOMAINS = [
     "api.github.com",
-    #"corpus-retrieval-slave1.herokuapp.com",
-    #"corpus-retrieval-slave2.herokuapp.com",
-    #"corpus-retrieval-slave3.herokuapp.com",
-    #"corpus-retrieval-slave4.herokuapp.com",
+    "corpus-retrieval-slave1.herokuapp.com",
+    "corpus-retrieval-slave2.herokuapp.com",
+    "corpus-retrieval-slave3.herokuapp.com",
+    "corpus-retrieval-slave4.herokuapp.com",
   ]
 
   def build(url, page=nil, sort=nil, order=nil)
