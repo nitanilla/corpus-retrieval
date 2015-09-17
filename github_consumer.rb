@@ -172,7 +172,7 @@ class Cache
   def get(request)
     response_body = @redis.get url_id(request.base_url)
     if response_body
-      Typhoeus::Response.new(return_code: :ok, code: 200, body: response_body)
+      Typhoeus::Response.new(return_code: :ok, code: 200, body: from_gzip(response_body))
     else
       nil
     end
@@ -180,13 +180,24 @@ class Cache
 
   def set(request, response)
     two_hours = 2*60*60
-    @redis.setex url_id(request.base_url), two_hours, response.body
+    @redis.setex url_id(request.base_url), two_hours, to_gzip(response.body)
   end
 
   def url_id(url)
     uri = URI.parse url
     uri.query = uri.query.gsub(/client_id=[^=]*&client_secret=[^=]*/, "")
     uri.path + "?" + uri.query
+  end
+
+  def to_gzip(content)
+    Base64.encode64(content)
+    #gz = Zlib::GzipWriter.new(StringIO.new)
+    #gz << content
+    #gz.close.string
+  end
+
+  def from_gzip(content)
+    Base64.decode64(content)
   end
 end
 
