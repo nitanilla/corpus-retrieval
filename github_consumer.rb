@@ -177,6 +177,8 @@ class Cache
 
   def set(request, response)
     two_hours = 2*60*60
+    puts request.base_url
+    puts response.body.size
     @redis.setex url_id(request.base_url), two_hours, to_gzip(response.body)
   end
 
