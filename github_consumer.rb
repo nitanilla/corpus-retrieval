@@ -94,11 +94,14 @@ private
     total_items = first_page_json["total_count"]
     total_pages = [total_items / 100, MAX_PAGES].min
 
+    puts "first_page: #{first_page_json.inspect}"
     items = first_page_json["items"]
     hydra = newhydra
     for page in 2..total_pages
       page_url = UrlBuilder.build(repos_url, page, params[:sort], params[:order])
       request = requestjson page_url do |json|
+        puts "page_url: #{page_url}"
+        puts "page_json: #{json.inspect}"
         items += json["items"]
       end
       hydra.queue request
