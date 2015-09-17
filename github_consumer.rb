@@ -176,10 +176,10 @@ class Cache
   end
 
   def set(request, response)
-    two_hours = 2*60*60
-    puts request.base_url
-    puts response.body.size
-    @redis.setex url_id(request.base_url), two_hours, to_gzip(response.body)
+    one_hours = 1*60*60
+    if response.body.size <= 70000
+      @redis.setex url_id(request.base_url), one_hours, to_gzip(response.body)
+    end
   end
 
   def url_id(url)
@@ -190,9 +190,6 @@ class Cache
 
   def to_gzip(content)
     Base64.encode64(content)
-    #gz = Zlib::GzipWriter.new(StringIO.new)
-    #gz << content
-    #gz.close.string
   end
 
   def from_gzip(content)
