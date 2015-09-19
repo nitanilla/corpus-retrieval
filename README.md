@@ -6,7 +6,7 @@ The discovery over the results of this tool can be performed using tools for tex
 
 ## Getting Started
 The working version can be located in:  
-[corpus-retrieval.herokuapp.com](corpus-retrieval.herokuapp.com)  
+[corpus-retrieval.herokuapp.com](https://corpus-retrieval.herokuapp.com/)  
 
 NOTE: the code presented here is optimized with the following  
 [proxy](https://github.com/nitanilla/github-proxy)
