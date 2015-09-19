@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8"/>
     <title>Get readmes from Github</title>
+    <!-- what does the js.cookie do? -->
     <script src="/js.cookie.js" type="text/javascript"></script>
     <style>
 
@@ -81,6 +82,7 @@
     var notice = document.getElementById("notice");
     var points = document.getElementById("points");
 
+    // blocks the form while creating the package of corpus   
     form.onsubmit = function(event) {
       if(!form.q.value) {
         event.preventDefault();
@@ -90,6 +92,7 @@
       }
     };
 
+    // shows the file downloader
     setInterval(function() {
       if (Cookies.get("fileUploading")) {
         Cookies.remove("fileUploading");
@@ -98,6 +101,7 @@
       }
     }, 100);
 
+    // I don´t know
     setInterval(function() {
       if(points.textContent.length >= 3) {
         points.textContent = "";
