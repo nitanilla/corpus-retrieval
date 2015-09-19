@@ -202,6 +202,7 @@ Typhoeus::Config.cache ||= Cache.new
 module UrlBuilder
   extend self
 
+  # We set domains to make request in parallel
   DOMAINS = [
     "api.github.com",
     "corpus-retrieval-slave1.herokuapp.com",
@@ -210,6 +211,7 @@ module UrlBuilder
     "corpus-retrieval-slave4.herokuapp.com",
   ]
 
+  # Build urls to be passed for the domains?
   def build(url, page=nil, sort=nil, order=nil)
     uri = URI.parse(url)
     domain = next_domain
@@ -238,6 +240,7 @@ module UrlBuilder
 
 private
 
+  # make the counts of the url to be spread by the domains
   def next_domain
     @domainindex ||= 0
     domain = DOMAINS[@domainindex]
@@ -245,11 +248,12 @@ private
     domain
   end
 
+  #define the parameters of the Auth Key needed to request information in Github
   def client_params
     cparams = client_env_vars
     "client_id=#{cparams[:client_id]}&client_secret=#{cparams[:client_secret]}"
   end
-
+  #set the Auth key credentials. This will allow requests up to 5000.
   def client_env_vars
     @clientindex ||= 0
 
