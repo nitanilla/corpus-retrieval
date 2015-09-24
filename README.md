@@ -1,5 +1,5 @@
 # [The Corpus Builder](https://corpus-retrieval.herokuapp.com/)  
-###For Readmes Retrieval
+###The Readme Retrieval
 Tool useful for collection of readmes given a query, like in GitHub. This work boost the discovering of information and the reuse. 
 All depends of the point of view.  
 The discovery over the results of this tool can be performed using tools for text-mining techniques. 
