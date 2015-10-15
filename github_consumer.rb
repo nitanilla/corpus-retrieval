@@ -176,10 +176,14 @@ class Cache
   end
 
   def set(request, response)
-    one_hours = 1*60*60
-    if response.body.size <= 70000
-      @redis.setex url_id(request.base_url), one_hours, to_gzip(response.body)
+    gziped = to_gzip(response.body)
+    if gziped.size <= 660000
+      fifteen_minutes = 15*60
+      @redis.setex url_id(request.base_url), fifteen_minutes, gziped
     end
+  rescue Exception => e
+    # probably because of redis memory limit
+    puts "Couldn't cache #{request.base_url}"
   end
 
   def url_id(url)
