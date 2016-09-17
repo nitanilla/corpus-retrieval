@@ -5,37 +5,106 @@ require "redis"
 require "json"
 
 module GithubConsumer
-  extend self
-  MAX_PAGES = 10
+  module GenericClient
+    extend self
 
-  PARAMS_COMBINATIONS = [
-    {sort: nil, order: nil}, # best match
-    {sort: "stars", order: "desc"},
-    {sort: "forks", order: "desc"},
-    {sort: "stars", order: "asc", reversed: true},
-    {sort: "forks", order: "asc", reversed: true}
-  ]
+    def newhydra
+      Typhoeus::Hydra.new(max_concurrency: 14)
+    end
+
+    def requestjson(url, log=false, &block)
+      request = Typhoeus::Request.new url
+      request.on_complete do |response|
+        if response.success?
+          json = JSON.parse(response.body)
+          if !json.is_a?(Hash) || json['message'].nil?
+            puts "[OK-#{response.cached?}] #{url}"
+            block.call(json)
+          else
+            puts "[ERR] #{url} #{json.inspect}"
+          end
+        else
+          puts "[FAIL-#{response.cached?}] #{url}"
+        end
+      end
+      request
+    end
+  end
+
+  module RepositoriesSearcher
+    extend self
+    extend GenericClient
+
+    MAX_PAGES = 10
+
+    PARAMS_COMBINATIONS = [
+      {sort: nil, order: nil}, # best match
+      {sort: "stars", order: "desc"},
+      {sort: "forks", order: "desc"},
+      {sort: "stars", order: "asc", reversed: true},
+      {sort: "forks", order: "asc", reversed: true}
+    ]
+
+    def get_all_repositories_urls(query)
+      repos_url = "https://api.github.com/search/repositories?q=#{query.gsub(" ","+")}+in:readme&per_page=100"
+      all_head_urls = []
+      hydra = newhydra
+      items = []
+      PARAMS_COMBINATIONS.each_with_index do |params, i|
+        url = UrlBuilder.build(repos_url, 1, params[:sort], params[:order])
+        req = requestjson url do |first_page_json|
+          items = get_remaning_pages(repos_url, first_page_json, params)
+
+          # une as urls
+          all_head_urls[i] = head_urls_from(items, params[:reversed])
+        end
+        hydra.queue req
+      end
+      hydra.run
+      all_head_urls.reduce(:|)
+    end
+  private
+
+    def head_urls_from(items, is_reversed)
+      # pega url de cada repositorio
+      head_urls = items.map do |repo_json|
+        repo_json["contents_url"].gsub("{+path}", "")
+      end
+
+      is_reversed ? head_urls.reverse : head_urls
+    end
+
+    def get_remaning_pages(repos_url, first_page_json, params)
+      total_items = first_page_json["total_count"]
+      total_pages = [total_items / 100, MAX_PAGES].min
+
+      items = []
+      items[1] = first_page_json["items"]
+      hydra = newhydra
+      (2..total_pages).each do |page|
+        page_url = UrlBuilder.build(repos_url, page, params[:sort], params[:order])
+        request = requestjson page_url do |json|
+          items[page] = json["items"]
+        end
+        hydra.queue request
+      end
+      hydra.run
+      
+      items.compact.flatten
+    end
+  end
+end
+
+module GithubConsumer
+  extend self
+  extend GenericClient
 
   README_PATTERN = %r{^readme.?([^.]*)$}i
 
   EXTENSIONS_PRIORITIES = [/\.md$/, /\.rst$/, /\.html$/, /\..*doc$/, /\..*$/, /^[^.]*$/]
 
   def get_readmes(query)
-    repos_url = "https://api.github.com/search/repositories?q=#{query.gsub(" ","+")}+in:readme&per_page=100"
-    all_head_urls = []
-    hydra = newhydra
-    items = []
-    for params in PARAMS_COMBINATIONS
-      url = UrlBuilder.build(repos_url, 1, params[:sort], params[:order])
-      req = requestjson url do |first_page_json|
-        items = get_remaning_pages(repos_url, first_page_json, params)
-
-        # une as urls
-        all_head_urls |= head_urls_from(items, params[:reversed])
-      end
-      hydra.queue req
-    end
-    hydra.run
+    all_head_urls = RepositoriesSearcher.get_all_repositories_urls(query)
 
     # .map cria uma array com o valor do último statement de cada iteração
     unrecognizeds = []
@@ -81,37 +150,6 @@ module GithubConsumer
 
 private
 
-  def head_urls_from(items, is_reversed)
-    # pega url de cada repositorio
-    head_urls = items.map do |repo_json|
-      repo_json["contents_url"].gsub("{+path}", "")
-    end
-
-    is_reversed ? head_urls.reverse : head_urls
-  end
-
-  def get_remaning_pages(repos_url, first_page_json, params)
-    total_items = first_page_json["total_count"]
-    total_pages = [total_items / 100, MAX_PAGES].min
-
-    items = first_page_json["items"]
-    hydra = newhydra
-    for page in 2..total_pages
-      page_url = UrlBuilder.build(repos_url, page, params[:sort], params[:order])
-      request = requestjson page_url do |json|
-        items += json["items"]
-      end
-      hydra.queue request
-    end
-    hydra.run
-    items
-  end
-
-  def count_matches_on(readme, query)
-    pattern = /#{query.gsub(/ +/, "[^0-9A-Za-z]")}/i
-    readme.scan(pattern).size
-  end
-
   def priority_of(path)
     EXTENSIONS_PRIORITIES.index{|pattern| pattern =~ File.basename(path)}
   end
@@ -124,23 +162,6 @@ private
       readme_data[:extension]
     ]
     "#{data.join(".-.")}.txt"
-  end
-
-  def newhydra
-    Typhoeus::Hydra.new(max_concurrency: 14)
-  end
-
-  def requestjson(url, log=false, &block)
-    request = Typhoeus::Request.new url
-    request.on_complete do |response|
-      if response.success?
-        puts "[OK-#{response.cached?}] #{url}"
-        block.call(JSON.parse(response.body))
-      else
-        puts "[FAIL-#{response.cached?}] #{url}"
-      end
-    end
-    request
   end
 end
 
