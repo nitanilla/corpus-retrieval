@@ -228,13 +228,7 @@ module UrlBuilder
   extend self
 
   # We set domains to make request in parallel
-  DOMAINS = [
-    "api.github.com",
-    "corpus-retrieval-slave1.herokuapp.com",
-    "corpus-retrieval-slave2.herokuapp.com",
-    "corpus-retrieval-slave3.herokuapp.com",
-    "corpus-retrieval-slave4.herokuapp.com",
-  ]
+  DOMAINS = ["api.github.com"] + ENV['SLAVES'].split(",")
 
   # Build urls to be passed for the domains?
   def build(url, page=nil, sort=nil, order=nil)
