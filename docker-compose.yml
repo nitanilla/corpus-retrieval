@@ -1,0 +1,21 @@
+web:
+  build: .
+  command: sh -c "rails s --bind 0.0.0.0"
+  ports:
+    - "3000:3000"
+  volumes:
+    - .:/app
+  links:
+    - redis:redis.local
+    - mongodb:mongo.local
+  environment:
+    - MONGODB_HOST=mongo.local
+    - CLIENT_ID=id1,id2,id3
+    - CLIENT_SECRET=secret1,secret2,secret3
+    - SLAVES=githubproxy1.com,githubproxy2.com,githubproxy3.com
+
+redis:
+  image: redis:3.2
+
+mongodb:
+  image: mongo:3.3

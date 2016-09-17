@@ -1,6 +1,5 @@
-require "rubygems"
-require "bundler/setup"
-require "sinatra"
-require "./server"
+# This file is used by Rack-based servers to start the application.
 
-run Server
+require_relative 'config/environment'
+
+run Rails.application
