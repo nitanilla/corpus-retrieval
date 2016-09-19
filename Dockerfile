@@ -23,10 +23,10 @@ RUN rvm requirements
 RUN rvm install 2.3.0
 RUN gem install bundler --no-ri --no-rdoc
 
+RUN apt-get install -y nodejs nodejs-dev
+
 # add source-code to /app
 ADD . /app
-
-RUN apt-get install -y nodejs nodejs-dev
 
 # install app requirements
 RUN bundle install

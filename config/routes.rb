@@ -1,5 +1,11 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
-  root to: 'readmes#search_form'
-  get '/readmes', to: 'readmes#search'
+  mount Sidekiq::Web => '/sidekiq'
+  root to: 'readmes#index', as: :readmes
+  resources :readmes, only: [] do
+    get :download
+    post :search, on: :collection
+  end
 end

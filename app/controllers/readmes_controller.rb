@@ -1,11 +1,18 @@
 class ReadmesController < ApplicationController
+
+  def index
+    @sets = ReadmesSet.order(:created_at.desc).all.to_a
+  end
+
+  def download
+    set = ReadmesSet.find(params[:readme_id])
+    send_data set.zip_to_download, filename: set.filename, type: 'application/octet-stream'
+  end
+
   def search_form; end
 
   def search
-    readmes = GithubConsumer.get_readmes params[:q]
-    binary = ZipBinaryCreator.create_zip_for(readmes)
-    cookies[:fileUploading] = "true"
-    filename = params[:q].gsub(/ +/, "_") + ".zip"
-    send_data binary, filename: filename, type: 'application/octet-stream'
+    ReadmesSetCreatorWorker.perform_async(params[:q])
+    redirect_to readmes_path
   end
 end
