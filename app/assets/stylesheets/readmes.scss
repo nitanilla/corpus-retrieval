@@ -1,0 +1,65 @@
+body {
+	text-align: center;
+}
+
+h1 {
+  font-size: 2.2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+ul, li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.big-title {
+	padding: 10px;
+	padding-top: 50px;
+
+  h1 {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 20px;
+  }
+}
+
+input[type=text] {
+	margin-top: 30px;
+}
+
+input {
+	font-size: 2em;
+}
+
+#readmes-sets-container {
+  max-width: 860px;
+  margin: 0 auto;
+  h2 {
+    margin: 70px 0 0 0;
+    padding: 0;
+  }
+}
+
+.readmes-set {
+  display: inline-block;
+  margin: 10px;
+
+  .query {
+    font-weight: bold;
+  }
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+}

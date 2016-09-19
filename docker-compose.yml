@@ -1,0 +1,37 @@
+web:
+  command: sh -c "rails s --bind 0.0.0.0"
+  ports:
+    - "3000:3000"
+  build: .
+  volumes:
+    - .:/app
+  links:
+    - redis:redis.local
+    - mongodb:mongo.local
+  environment:
+    - REDIS_URL=redis://redis.local/0
+    - MONGODB_HOST=mongo.local
+    - CLIENT_ID=12sdf3,12sdf3,1bdf23
+    - CLIENT_SECRET=12sdf3,12sdf3,1bdf23
+    - SLAVES=githubproxy1.com,githubproxy2.com,githubproxy3.com
+
+sidekiq:
+  command: bundle exec sidekiq
+  build: .
+  volumes:
+    - .:/app
+  links:
+    - redis:redis.local
+    - mongodb:mongo.local
+  environment:
+    - REDIS_URL=redis://redis.local/0
+    - MONGODB_HOST=mongo.local
+    - CLIENT_ID=12sdf3,12sdf3,1bdf23
+    - CLIENT_SECRET=12sdf3,12sdf3,1bdf23
+    - SLAVES=githubproxy1.com,githubproxy2.com,githubproxy3.com
+
+redis:
+  image: redis:3.2
+
+mongodb:
+  image: mongo:3.3

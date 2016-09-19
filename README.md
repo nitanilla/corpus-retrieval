@@ -11,9 +11,19 @@ The working version can be located in:
 NOTE: the code presented here is optimized with the following  
 [proxy](https://github.com/nitanilla/github-proxy)
 
+## Executing the project locally
 To use this Code, choose one of the following options to get started:
 * [Download the zip](https://github.com/nitanilla/corpus-retrieval/archive/master.zip)
-* [Fork this repository on GitHub](https://github.com/nitanilla/corpus-retrieval#fork-destination-box)
+* *Clone the project*: `git clone https://github.com/nitanilla/corpus-retrieval`
+
+To run the project you have to install:
+* [docker](https://docs.docker.com/engine/installation/)
+* [docker-compose](https://docs.docker.com/compose/install/).
+
+After installing them follow the steps below to get the server up running:
+* `docker-compose build # Create the project image`
+* Customize `docker-compose.yml` to use your own CLIENT_IDs, CLIENT_SECRETs and SLAVES.
+* `docker-compose up # Run the server listening on port 3000`
 
 ## Bugs and Issues
 Have a bug or an issue with this? [Open a new issue](https://github.com/nitanilla/corpus-retrieval/issues) here on GitHub 
