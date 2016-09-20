@@ -1,7 +1,7 @@
 class ReadmesController < ApplicationController
 
   def index
-    @sets = ReadmesSet.order(:created_at.desc).all.to_a
+    @sets = ReadmesSet.all.to_a.sort_by(&:created_at).reverse
   end
 
   def download
