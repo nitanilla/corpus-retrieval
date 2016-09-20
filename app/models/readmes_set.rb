@@ -11,10 +11,10 @@ class ReadmesSet
   field :filename, type: String
   field :zip, type: BSON::Binary
   field :worker_id, type: String
-  field :status, type: Integer, default: STATUSES.index(:processing)
+  field :status, type: Integer, default: STATUSES.index(:waiting)
 
   def self.destroy_olds!
-    ReadmesSet.all.sort_by(&:created_at).to_a[(MAX_STORED+1)..-1].each(&:destroy)
+    (ReadmesSet.all.sort_by(&:created_at).to_a[MAX_STORED..-1] || []).each(&:destroy)
   end
 
   def self.status_of(status_symbol)

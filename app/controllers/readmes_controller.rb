@@ -12,7 +12,8 @@ class ReadmesController < ApplicationController
   def search_form; end
 
   def search
-    ReadmesSetCreatorWorker.perform_async(params[:q])
+    readmes_set = ReadmesSet.create! query: params[:q]
+    ReadmesSetCreatorWorker.perform_async readmes_set.id
     redirect_to readmes_path
   end
 end
