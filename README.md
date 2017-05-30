@@ -44,5 +44,5 @@ This version:
 
 ## Copyright and License
 
-Copyleft © 2015 Puc-Rio, LLC.  
+Copyleft © 2017 Puc-Rio, LLC.  
 Code released under the [GPL 2.0](https://github.com/nitanilla/corpus-retrieval/blob/master/LICENSE) license.
