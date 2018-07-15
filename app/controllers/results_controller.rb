@@ -1,4 +1,4 @@
-class ReadmesController < ApplicationController
+class ResultsController < ApplicationController
 
   def index
     @sets = ResultsZip.all.to_a.sort_by(&:created_at).reverse
@@ -14,6 +14,6 @@ class ReadmesController < ApplicationController
   def search
     results = ResultsZip.create! query: params[:q], type: 'readmes'
     ReadmesSetCreatorWorker.perform_async results.id
-    redirect_to readmes_path
+    redirect_to results_path
   end
 end

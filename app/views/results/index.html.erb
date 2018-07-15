@@ -7,7 +7,7 @@
 	<h2>of GitHub readmes</h2>
 </hgroup>
 
-<%= form_tag search_readmes_path do |f| %>
+<%= form_tag search_results_path do |f| %>
 	<input name="q"></input>
 	<input type="submit" value="Buscar"></input>
 <% end %>
@@ -20,7 +20,7 @@
         <p class="query"><%= set.query %></p>
         <p><%= set.created_at.to_formatted_s(:short) %></p>
         <% if set.finished? %>
-          <p><%= link_to "(Download)", readme_download_path(set) %></p>
+          <p><%= link_to "(Download)", result_download_path(set) %></p>
         <% else %>
           <p>(<%= set.status_name.capitalize %>)</p>
         <% end %>
