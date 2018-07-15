@@ -12,8 +12,9 @@ class ResultsController < ApplicationController
   def search_form; end
 
   def search
-    results = ResultsZip.create! query: params[:q], type: 'readmes'
-    ReadmesSetCreatorWorker.perform_async results.id
+    type = 'readmes'
+    results = ResultsZip.create! query: params[:q], type: type
+    ResultsZipCreatorWorker.perform_async results.id, type
     redirect_to results_path
   end
 end

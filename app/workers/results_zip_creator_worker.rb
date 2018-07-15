@@ -1,12 +1,12 @@
-class ReadmesSetCreatorWorker
+class ResultsZipCreatorWorker
   include Sidekiq::Worker
   sidekiq_options retry: false
 
-  def perform(results_id)
+  def perform(results_id, type)
     begin
       results = ResultsZip.find results_id
       prepare results
-      process results
+      process(results, type)
     rescue Exception => e
       on_failing results
       raise e
@@ -23,8 +23,8 @@ class ReadmesSetCreatorWorker
     results
   end
 
-  def process(results)
-    readmes = GithubConsumer.get_readmes results.query
+  def process(results, type)
+    readmes = GithubConsumer.public_send(:"get_#{type}", results.query)
     binary = ZipBinaryCreator.create_zip_for(readmes)
 
     results.finish! BSON::Binary.new(binary)
