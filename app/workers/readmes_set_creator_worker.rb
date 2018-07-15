@@ -2,35 +2,35 @@ class ReadmesSetCreatorWorker
   include Sidekiq::Worker
   sidekiq_options retry: false
 
-  def perform(readmes_set_id)
+  def perform(results_id)
     begin
-      readmes_set = ReadmesSet.find readmes_set_id
-      prepare readmes_set
-      process readmes_set
+      results = ResultsZip.find results_id
+      prepare results
+      process results
     rescue Exception => e
-      on_failing readmes_set
+      on_failing results
       raise e
     end
   end
 
   private
 
-  def prepare(readmes_set)
-    filename = readmes_set.query.gsub(/ +/, "_") + ".zip"
+  def prepare(results)
+    filename = results.query.gsub(/ +/, "_") + ".zip"
 
-    readmes_set.update_attributes! filename: filename, worker_id: self.jid, status: ReadmesSet.status_of(:processing)
-    ReadmesSet.destroy_olds!
-    readmes_set
+    results.update_attributes! filename: filename, worker_id: self.jid, status: ResultsZip.status_of(:processing)
+    ResultsZip.destroy_olds!
+    results
   end
 
-  def process(readmes_set)
-    readmes = GithubConsumer.get_readmes readmes_set.query
+  def process(results)
+    readmes = GithubConsumer.get_readmes results.query
     binary = ZipBinaryCreator.create_zip_for(readmes)
 
-    readmes_set.finish! BSON::Binary.new(binary)
+    results.finish! BSON::Binary.new(binary)
   end
 
-  def on_failing(readmes_set)
-    readmes_set && readmes_set.update_attributes!(status: ReadmesSet.status_of(:failed))
+  def on_failing(results)
+    results && results.update_attributes!(status: ResultsZip.status_of(:failed))
   end
 end

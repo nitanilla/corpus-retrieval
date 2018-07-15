@@ -1,20 +1,26 @@
-class ReadmesSet
+class ResultsZip
   include Mongoid::Document
   include Mongoid::Timestamps
 
   class StatusDoesNotExist < StandardError; end
 
   STATUSES = %i[processing finished failed waiting]
+  TYPES = %w[readmes]
   MAX_STORED = 10
 
   field :query, type: String
   field :filename, type: String
   field :zip, type: BSON::Binary
+  field :type, type: String
   field :worker_id, type: String
   field :status, type: Integer, default: STATUSES.index(:waiting)
 
+  validates :type,
+    presence: true,
+    inclusion: {in: TYPES}
+
   def self.destroy_olds!
-    (ReadmesSet.all.sort_by(&:created_at).to_a[0..(MAX_STORED*-1-1)] || []).each(&:destroy)
+    (self.all.sort_by(&:created_at).to_a[0..(MAX_STORED*-1-1)] || []).each(&:destroy)
   end
 
   def self.status_of(status_symbol)
@@ -23,8 +29,8 @@ class ReadmesSet
   end
 
   def finish!(zip)
-    self.update_attributes! zip: zip, status: ReadmesSet.status_of(:finished)
-    ReadmesSet.where(query: self.query, :id.ne => self.id).destroy_all
+    self.update_attributes! zip: zip, status: self.class.status_of(:finished)
+    self.class.where(query: self.query, :id.ne => self.id).destroy_all
   end
 
   def zip_to_download
@@ -36,6 +42,6 @@ class ReadmesSet
   end
 
   def finished?
-    self.status == ReadmesSet.status_of(:finished)
+    self.status == self.class.status_of(:finished)
   end
 end
