@@ -67,3 +67,25 @@ fieldset.types {
     padding: 0;
   }
 }
+
+.help {
+	display: inline-block;
+	text-align: left;
+	color: blue;
+	.search-sample {
+		border: solid 1px #ccc;
+		display: inline-block;
+		width: 10em;
+	}
+	.search-sample {
+		text-align: left;
+	}
+
+	p {
+		padding: 0;
+		margin: 0;
+		font-style: italic;
+		font-size: 0.8em;
+		width: 41em;
+	}
+}

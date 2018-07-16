@@ -10,11 +10,15 @@
 <%= form_tag search_results_path do |f| %>
   <p class="error" style="color: red;"><%= flash[:error] %></p>
   <input name="q" value="<%= params[:q] %>"></input>
+	<input type="submit" value="Search"></input>
   <fieldset class="types">
     <input type="radio" name="type" value="readmes">Readmes</input>
     <input type="radio" name="type" value="issues">Issues</input>
   </fieldset>
-	<input type="submit" value="Search"></input>
+	<div class="help">
+		<p>You can perform a phrase query using quotes. Ex. <span class="search-sample">"real estate"</span></p>
+		<p>You also can refine issue queries using the label modifier. Ex. <span class="search-sample">"real estate" label:bug</span></p>
+	</div>
 <% end %>
 
 <div id="results-sets-container">
