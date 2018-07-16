@@ -41,7 +41,11 @@ input {
 	font-size: 2em;
 }
 
-#readmes-sets-container {
+fieldset.types {
+  border: none;
+}
+
+#results-sets-container {
   max-width: 860px;
   margin: 0 auto;
   h2 {
@@ -50,7 +54,7 @@ input {
   }
 }
 
-.readmes-set {
+.results-set {
   display: inline-block;
   margin: 10px;
 

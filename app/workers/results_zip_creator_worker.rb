@@ -16,7 +16,7 @@ class ResultsZipCreatorWorker
   private
 
   def prepare(results)
-    filename = results.query.gsub(/ +/, "_") + ".zip"
+    filename = results.query.gsub(/ +/, "_") + "_" + results.type + ".zip"
 
     results.update_attributes! filename: filename, worker_id: self.jid, status: ResultsZip.status_of(:processing)
     ResultsZip.destroy_olds!
@@ -24,10 +24,10 @@ class ResultsZipCreatorWorker
   end
 
   def process(results, type)
-    readmes = GithubConsumer.public_send(:"get_#{type}", results.query)
-    binary = ZipBinaryCreator.create_zip_for(readmes)
+    data = GithubConsumer.public_send(:"get_#{type}", results.query)
+    binary = ZipBinaryCreator.create_zip_for(data)
 
-    results.finish! BSON::Binary.new(binary)
+    results.finish! binary
   end
 
   def on_failing(results)

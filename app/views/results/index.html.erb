@@ -4,25 +4,30 @@
 
 <hgroup class="big-title">
 	<h1>Corpus Retrieval</h1>
-	<h2>of GitHub readmes</h2>
+	<h2>of GitHub</h2>
 </hgroup>
 
 <%= form_tag search_results_path do |f| %>
-	<input name="q"></input>
-	<input type="submit" value="Buscar"></input>
+  <p class="error" style="color: red;"><%= flash[:error] %></p>
+  <input name="q" value="<%= params[:q] %>"></input>
+  <fieldset class="types">
+    <input type="radio" name="type" value="readmes">Readmes</input>
+    <input type="radio" name="type" value="issues">Issues</input>
+  </fieldset>
+	<input type="submit" value="Search"></input>
 <% end %>
 
-<div id="readmes-sets-container">
+<div id="results-sets-container">
   <h2>Readmes of another queries</h2>
-  <ul class="readmes-sets">
-    <%- @sets.each do |set| %>
-      <li class="readmes-set">
-        <p class="query"><%= set.query %></p>
-        <p><%= set.created_at.to_formatted_s(:short) %></p>
-        <% if set.finished? %>
-          <p><%= link_to "(Download)", result_download_path(set) %></p>
+  <ul class="results-sets">
+    <%- @results.each do |result| %>
+      <li class="results-set">
+        <p class="query"><%= result.query %> (<%= result.type %>)</p>
+        <p><%= result.created_at.to_formatted_s(:short) %></p>
+        <% if result.finished? %>
+          <p><%= link_to "(Download)", result_download_path(result) %></p>
         <% else %>
-          <p>(<%= set.status_name.capitalize %>)</p>
+          <p>(<%= result.status_name.capitalize %>)</p>
         <% end %>
       </li>
     <%- end %>
