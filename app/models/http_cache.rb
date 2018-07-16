@@ -25,8 +25,10 @@ class HttpCache
 
   def url_id(url)
     uri = URI.parse url
-    uri.query = uri.query.gsub(/client_id=[^=]*&client_secret=[^=]*/, "")
-    uri.path + "?" + uri.query
+    uri.query = uri.query.gsub(/client_id=[^&]*&client_secret=[^&]*/, "")
+    cached_uri = uri.path + "?" + uri.query
+    puts "#{url} => #{cached_uri}"
+    cached_uri
   end
 
   def to_gzip(content)
